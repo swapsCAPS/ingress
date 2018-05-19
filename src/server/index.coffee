@@ -1,11 +1,44 @@
-console.log "hai Lea!!!"
+_       = require "underscore"
+config  = require "config"
+request = require "request-promise"
+Promise = require "bluebird"
 
-kusje = (index) ->
-	word = if index <= 1 then "kusje" else "kusjes"
-	hearts = [0..(index % 80)].map((x, i) -> "❤ ").join("")
-	console.log "#{index} #{word} voor Lea #{hearts}"
-	setTimeout ->
-		kusje ++index
-	, 50
+get_bearer_token = ->
+	url  = "https://api.twitter.com/oauth2/token"
 
-kusje(1)
+	opts = {
+		url
+		json: true
+		body:
+			grant_type: process.env.TWITTER_ACCESS_TOKEN
+	}
+
+	request.post opts
+
+get_bearer_token()
+	.then console.log
+
+
+# requests = config.apis.map (api) ->
+	# [ "base_url", "endpoint", "key" ].map (k) ->
+		# throw new Error "No #{k} defined" if _.isEmpty api[k]
+
+	# { protocol, base_url, endpoint, key } = api
+	# protocol = protocol or "https"
+
+	# url  = "#{protocol}://#{base_url}/#{endpoint}"
+
+	# opts = {
+		# url
+		# json: true
+	# }
+
+	# request opts
+
+
+# Promise.all [get_bearer_token].concat requests
+	# .then (results) ->
+		# console.log "results", results
+	# .catch (error) ->
+		# console.log "error", error
+		# throw error

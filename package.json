@@ -11,9 +11,13 @@
   "license": "ISC",
   "dependencies": {
     "babel": "^6.23.0",
+    "coffee-script": "^1.12.7",
     "coffeescript": "^2.3.0",
+    "config": "^1.30.0",
     "express": "^4.16.3",
+    "request": "^2.86.0",
     "request-promise": "^4.2.2",
+    "underscore": "^1.9.0",
     "vue": "^2.5.16",
     "webpack": "^4.8.3"
   },
