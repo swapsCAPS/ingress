@@ -1,65 +1,24 @@
-_       = require "underscore"
-config  = require "config"
-request = require "request-promise"
-Promise = require "bluebird"
+express = require "express"
+webpack = require "webpack"
+path    = require "path"
+webpackDevMiddleware = require 'webpack-dev-middleware'
+log     = require "winston"
 
-encodeRFC1738 = (str) ->
-	encodeURIComponent(str)
-		.replace(/!/g, '%21')
-		.replace(/'/g, '%27')
-		.replace(/\(/g, '%28')
-		.replace(/\)/g, '%29')
-		.replace(/\*/g, '%2A')
+webpackConfig = require "../../webpack.config"
 
-get_twitter_bearer_token = (key, secret) ->
-	throw new Error "pass in key and secret plz" unless key and secret
-	key     = encodeRFC1738 key
-	console.log('key', key)
-	secret  = encodeRFC1738 secret
-	console.log('secret', secret)
-	encoded = Buffer.from("#{key}:#{secret}").toString "base64"
-	opts    =
-		method:  "POST"
-		url:     "https://api.twitter.com/oauth2/token"
-		headers:
-			"Authorization": "Basic #{encoded}"
-			"Content-Type":  "application/x-www-form-urlencoded"
-		body: "grant_type=client_credentials"
-	console.log('opts', opts)
+compiler = webpack webpackConfig
 
-	request opts
+app = express()
 
-get_twitter_bearer_token process.env.TWITTER_API_KEY, process.env.TWITTER_API_SECRET
-	.then (res, body) ->
-		console.log('res', res)
-		console.log('body', body)
-	.catch (error) ->
-		console.error "oops", error
+if process.env.NODE_ENV is "development"
+	log.info "Using dev middleware : )"
+	app.use webpackDevMiddleware compiler, publicPath: webpackConfig.output.publicPath
+	app.use require('webpack-hot-middleware') compiler
+
+app.use express.static path.join __dirname + "/public"
+
+app.use "/api/v1", require "./api/v1"
 
 
-
-
-
-# requests = config.apis.map (api) ->
-	# [ "base_url", "endpoint", "key" ].map (k) ->
-		# throw new Error "No #{k} defined" if _.isEmpty api[k]
-
-	# { protocol, base_url, endpoint, key } = api
-	# protocol = protocol or "https"
-
-	# url  = "#{protocol}://#{base_url}/#{endpoint}"
-
-	# opts = {
-		# url
-		# json: true
-	# }
-
-	# request opts
-
-
-# Promise.all [get_bearer_token].concat requests
-	# .then (results) ->
-		# console.log "results", results
-	# .catch (error) ->
-		# console.log "error", error
-		# throw error
+app.listen 3000, ->
+	console.log "listening"
