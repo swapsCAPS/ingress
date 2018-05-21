@@ -1,9 +1,6 @@
 module.exports =
-	apis: [
-		{
-			name: "twitter trending"
-			key:  process.env.TWITTER_ACCESS_TOKEN
-			base_url: "www.twitter.com"
-			endpoint: "/trending"
-		}
-	]
+	apis:
+		twitter:
+			name:     "twitter"
+			key:      process.env.TWITTER_API_KEY
+			secret:   process.env.TWITTER_API_SECRET
