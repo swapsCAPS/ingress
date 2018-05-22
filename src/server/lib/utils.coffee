@@ -1,5 +1,5 @@
 _       = require "underscore"
-request = require "request-promise"
+requestP = require "request-promise"
 Promise = require "bluebird"
 
 encodeRFC1738 = (str) ->
@@ -16,8 +16,9 @@ get_twitter_bearer_token = (key, secret) ->
 		key     = encodeRFC1738 key
 		secret  = encodeRFC1738 secret
 		resolve Buffer.from("#{key}:#{secret}").toString "base64"
+
 	.then (encoded) ->
-		request
+		requestP
 			method:  "POST"
 			url:     "https://api.twitter.com/oauth2/token"
 			json:    true
@@ -25,14 +26,25 @@ get_twitter_bearer_token = (key, secret) ->
 				"Authorization": "Basic #{encoded}"
 				"Content-Type":  "application/x-www-form-urlencoded"
 			body: "grant_type=client_credentials"
+
 	.then (response) ->
 		{ token_type, access_token } = response
 		if token_type isnt "bearer" or _.isEmpty access_token
 			throw new Error "invalid response"
 		access_token
+
 	.timeout 5000, "Getting bearer token timed out"
+
+twitter_request = (token, opts) ->
+	new Promise (resolve) ->
+		throw new Error "No token" unless token
+		resolve _.extend {}, opts, headers: "Authorization": "Bearer #{token}"
+
+	.then (opts) ->
+		requestP opts
 
 module.exports = {
 	encodeRFC1738
 	get_twitter_bearer_token
+	twitter_request
 }

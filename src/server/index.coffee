@@ -5,11 +5,13 @@ webpack = require "webpack"
 path    = require "path"
 webpackDevMiddleware = require 'webpack-dev-middleware'
 log     = require "winston"
-Promise = require "bluebird"
+global.Promise = require "bluebird"
+
+process.on "unhandledRejection", (e) -> throw e
 
 webpackConfig = require "../../webpack.config"
 
-{ get_twitter_bearer_token } = require "./lib/utils"
+{ get_twitter_bearer_token, twitter_request } = require "./lib/utils"
 
 compiler = webpack webpackConfig
 
@@ -25,13 +27,31 @@ app.use express.static path.join __dirname + "/public"
 app.use "/api/v1", require "./api/v1"
 
 app.use (error, req, res, next) ->
-	console.log "oh sjit"
 	log.error error
-	res.sendStatus 500
+	res.status(500).json message: error.message
 
 get_twitter_bearer_token config.apis.twitter.key, config.apis.twitter.secret
 	.then (token) ->
 		app.set "twitter_bearer_token", token
+		token
+
+	.then (token) ->
+
+		twitter_request token,
+			method: "GET"
+			url:    "https://api.twitter.com/1.1/trends/available"
+			json:   true
+		.timeout 5000
+
+	.then (woeids) ->
+		app.set "woeids",
+			_.chain woeids
+				.filter (d) -> d.placeType.code is 12
+				.map    (d) -> _(d).pick [ "countryCode", "name", "woeid" ]
+				.sortBy "name"
+				.value()
+
+	.then ->
 		new Promise (resolve) ->
 			app.listen 3000, (error) ->
 				throw error if error

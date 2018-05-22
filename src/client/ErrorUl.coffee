@@ -6,7 +6,11 @@ ErrorUl = ({ errors }) ->
 	<ul>
 		{
 			_(errors).map (error, index) ->
-				<li key="error-#{index}">{ error.message }</li>
+				<li key="error-#{index}">
+					<span>{ error.type }</span>
+					<span> </span>
+					<span>{ error.message }</span>
+				</li>
 		}
 	</ul>
 

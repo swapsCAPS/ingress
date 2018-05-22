@@ -1,23 +1,69 @@
-_       = require "underscore"
-config  = require "config"
-request = require "request-promise"
-express = require "express"
-Promise = require "bluebird"
-router  = express.Router()
-app     = express()
+_                       = require "underscore"
+config                  = require "config"
+request                 = require "request"
+log     = require "winston"
+requestP                = require "request-promise"
+express                 = require "express"
+Promise                 = require "bluebird"
+router                  = express.Router()
+jsonstream2             = require "jsonstream2"
+pump                    = require "pump"
+app                     = express()
+{ Transform, Writable } = require "stream"
 
-{ encodeRFC1738, get_twitter_bearer_token } = require "../../lib/utils"
+{ encodeRFC1738, get_twitter_bearer_token, twitter_request } = require "../../lib/utils"
 
 { StatusCodeError } = require "request-promise/errors"
 
-twitter_request = (token, opts) ->
-	new Promise (resolve) ->
-		throw new Error "No token" unless token
-		resolve _.extend {}, opts, headers: "Authorization": "Bearer #{token}"
-	.then (opts) ->
-		request opts
+router.get "/woeids", (req, res, next) ->
+	res.json req.app.get "woeids"
 
-router.get "/trending/:woeid", (req, res, next) ->
+router.get "/trending/google/:geo", (req, res, next) ->
+	return next new Error "No geo specified..." unless req.params.geo
+
+	httpReqStream = request
+		url: "https://trends.google.com/trends/api/stories/latest"
+		qs:
+			hl:   "nl"
+			tz:   0
+			cat:  "all"
+			fi:   0
+			fs:   0
+			geo:  req.params.geo.toUpperCase()
+			ri:   300
+			rs:   30
+			sort: 0
+
+	httpReqStream.once "response", (response) ->
+		if response.statusCode >= 400
+			httpReqStream.emit "error", new Error "#{response.statusCode} #{response.statusMessage}"
+
+	lastChunk = null
+	pump [
+		httpReqStream
+
+		new Transform
+			objectMode:   false
+			transform:    (chunk, enc, cb) =>
+				lastChunk = chunk
+				nextLine = chunk.toString().split('\n')[1]
+				return cb null, nextLine if nextLine
+				cb null, chunk
+
+		jsonstream2.parse [ "storySummaries", "trendingStories" ]
+
+		new Writable
+			objectMode: true
+			write:      (trends, enc, cb) ->
+				res.json _(trends).map (trend) -> _(trend).pick [ "title" ]
+				cb()
+
+	], (error) ->
+		if error
+			log.error "Last chunk", lastChunk.toString() if lastChunk
+			next new Error "Error getting Google trends: #{error.message}"
+
+router.get "/trending/twitter/:woeid", (req, res, next) ->
 	return next new Error "No woeid specified..." unless req.params.woeid
 
 	twitter_request req.app.get("twitter_bearer_token"),

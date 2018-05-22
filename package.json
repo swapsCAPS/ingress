@@ -5,6 +5,7 @@
   "main": "build/server/index.js",
   "scripts": {
     "develop": "NODE_ENV=development nodemon -w src/server src/server/index.coffee",
+    "inspect": "NODE_ENV=development nodemon --inspect -w src/server src/server/index.coffee",
     "build": "NODE_ENV=production webpack",
     "test": "jest"
   },
@@ -25,6 +26,9 @@
     "config": "^1.30.0",
     "express": "^4.16.3",
     "isomorphic-fetch": "^2.2.1",
+    "jsonstream2": "^1.1.1",
+    "pump": "^3.0.0",
+    "query-string": "^6.1.0",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-hot-loader": "^4.2.0",
