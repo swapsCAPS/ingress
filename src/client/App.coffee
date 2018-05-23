@@ -1,10 +1,21 @@
 import React, { Component } from 'react'
-import _ from "underscore"
-import fetch from "isomorphic-fetch"
+import _                    from "underscore"
+import fetch                from "isomorphic-fetch"
+import ErrorUl              from "./ErrorUl.coffee"
+import TwitterTable         from "./TwitterTable.coffee"
+import GoogleTable          from "./GoogleTable.coffee"
 
-import ErrorUl from "./ErrorUl.coffee"
-import TwitterTable from "./TwitterTable.coffee"
-import GoogleTable from "./GoogleTable.coffee"
+# TODO
+# - Fix google language
+# - Fix google title
+# - Get google trend amounts
+# - Save to db (time series like...)
+# - more apis. youtube? facebook? reddit? (crawling)
+# - get available countries from google and cross check?
+# - styling (dropdown?)
+# - debounce
+# - Ensure server does not make too many calls
+# - more things
 
 class App extends Component
 	addError: (error) ->
