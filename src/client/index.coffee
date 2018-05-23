@@ -4,10 +4,12 @@ import { hot }  from 'react-hot-loader'
 
 import App from './App.coffee'
 
+import "./index.scss"
+
 Root = ->
-	<div>
+	<main>
 		<App />
-	</div>
+	</main>
 
 ReactDOM.render(<Root />, document.getElementById('root'))
 

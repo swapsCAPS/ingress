@@ -39,7 +39,7 @@ class App extends Component
 		.then (response) =>
 			if response.status >= 400
 				return response.json().then (error) =>
-					error.type = type
+					error.meta = path
 					@addError error
 
 			response.json()
@@ -49,7 +49,7 @@ class App extends Component
 				trending: _.extend {}, trending, [type]: response
 
 		.catch (error) =>
-			error.type = type
+			error.meta = path
 			@addError error
 
 	componentDidMount: ->
@@ -75,8 +75,8 @@ class App extends Component
 					woeid
 
 	render: ->
-		<div>
-			<div>
+		<div className="container">
+			<div className="row">
 				{
 					_(@state.woeids).map ({ name, countryCode, woeid, isSelected }, i) =>
 						style =
@@ -99,14 +99,17 @@ class App extends Component
 				}
 			</div>
 			<ErrorUl
+				className = "row"
 				errors = { @state.errors }
 			/>
-			<div style={{ display: "flex", flexDirection: "row" }}>
+			<div className="row">
 				<TwitterTable
+					className = "col-sm-4"
 					trending = { @state.trending.twitter }
 				/>
 				<GoogleTable
-					trending = { @state.trending.google }
+					className = "col-sm-8"
+					trending  = { @state.trending.google }
 				/>
 			</div>
 		</div>

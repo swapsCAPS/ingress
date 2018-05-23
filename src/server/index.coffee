@@ -44,9 +44,15 @@ get_twitter_bearer_token config.apis.twitter.key, config.apis.twitter.secret
 		.timeout 5000
 
 	.then (woeids) ->
+		console.log "woeds",
+			_.chain woeids
+				.map (d) -> d.placeType.name
+				.uniq()
+				.sortBy "name"
+				.value()
 		app.set "woeids",
 			_.chain woeids
-				.filter (d) -> d.placeType.code is 12
+				.filter (d) -> d.placeType.name is "Country"
 				.map    (d) -> _(d).pick [ "countryCode", "name", "woeid" ]
 				.sortBy "name"
 				.value()
