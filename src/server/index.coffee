@@ -4,8 +4,8 @@ express = require "express"
 webpack = require "webpack"
 path    = require "path"
 webpackDevMiddleware = require 'webpack-dev-middleware'
-log     = require "winston"
 global.Promise = require "bluebird"
+log     = require("./lib/log")()
 
 process.on "unhandledRejection", (e) -> throw e
 
@@ -26,10 +26,6 @@ app.use express.static path.join __dirname + "/public"
 
 app.use "/api/v1", require "./api/v1"
 
-app.use (error, req, res, next) ->
-	log.error error
-	res.status(500).json message: error.message
-
 get_twitter_bearer_token config.apis.twitter.key, config.apis.twitter.secret
 	.then (token) ->
 		app.set "twitter_bearer_token", token
@@ -44,18 +40,12 @@ get_twitter_bearer_token config.apis.twitter.key, config.apis.twitter.secret
 		.timeout 5000
 
 	.then (woeids) ->
-		console.log "woeds",
-			_.chain woeids
-				.map (d) -> d.placeType.name
-				.uniq()
-				.sortBy "name"
-				.value()
-		app.set "woeids",
-			_.chain woeids
-				.filter (d) -> d.placeType.name is "Country"
-				.map    (d) -> _(d).pick [ "countryCode", "name", "woeid" ]
-				.sortBy "name"
-				.value()
+		woeids = _.chain woeids
+			.map    (d) ->
+				_(d).pick [ "country", "countryCode", "name", "woeid" ]
+			.groupBy "country"
+			.value()
+		app.set "woeids", woeids
 
 	.then ->
 		new Promise (resolve) ->

@@ -1,2 +1,7 @@
 @import "~bootstrap/dist/css/bootstrap.css";
+@import "./colors.scss";
 
+body {
+	background: $alleyDark;
+	color:      $star;
+}

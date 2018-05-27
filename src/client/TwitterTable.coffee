@@ -1,16 +1,13 @@
-import React, { Component } from 'react'
-import _ from "underscore"
+import React, { Component }    from 'react'
+import _                       from "underscore"
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+import ReactTransitionGroup from 'react-addons-transition-group'
 
-style =
-	td: maxWidth: "170px"
-	a:
-		display:      "inline-block"
-		textOverflow: "ellipsis"
-		maxWidth:      "100%"
-		whiteSpace:   "nowrap"
-		overflow:     "hidden"
+import globalStyle from "./globalStyle.coffee"
+import "./Table.scss"
+{ colors } = globalStyle
 
-export default ({ trending, className }) ->
+export default ({ trending, className, setHovered }) ->
 	<div className={className}>
 		<h4>Twitter</h4>
 		<table className="table table-sm">
@@ -24,10 +21,14 @@ export default ({ trending, className }) ->
 					</thead>
 			<tbody>
 				{
-					_(trending).map ({ name, url, tweet_volume }, index) ->
+					_(trending).map ({ name, url, tweet_volume, hovered }, index) ->
 						<tr key="table-trending-#{index}">
-							<td style={ style.td }>
-								<a style={ style.a } target="_blank" href="#{url}">{ name }</a>
+							<td className="table-td">
+								<a
+									className="table-link"
+									target = "_blank"
+									href   = "#{url}"
+								>{ name }</a>
 							</td>
 							<td>{ tweet_volume }</td>
 						</tr>

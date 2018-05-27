@@ -5,11 +5,14 @@ import { hot }  from 'react-hot-loader'
 import App from './App.coffee'
 
 import "./index.scss"
+import globalStyle from "./globalStyle.coffee"
 
 Root = ->
-	<main>
-		<App />
-	</main>
+	<div>
+		<main>
+			<App />
+		</main>
+	</div>
 
 ReactDOM.render(<Root />, document.getElementById('root'))
 

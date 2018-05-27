@@ -1,14 +1,13 @@
+Promise                 = require "bluebird"
 _                       = require "underscore"
 config                  = require "config"
-request                 = require "request"
-log     = require "winston"
-requestP                = require "request-promise"
 express                 = require "express"
-Promise                 = require "bluebird"
-router                  = express.Router()
 jsonstream2             = require "jsonstream2"
+log                     = require("../../lib/log")()
 pump                    = require "pump"
-app                     = express()
+request                 = require "request"
+requestP                = require "request-promise"
+router                  = express.Router()
 { Transform, Writable } = require "stream"
 
 { encodeRFC1738, get_twitter_bearer_token, twitter_request } = require "../../lib/utils"
@@ -18,7 +17,7 @@ app                     = express()
 router.get "/woeids", (req, res, next) ->
 	res.json req.app.get "woeids"
 
-router.get "/trending/google/:geo", (req, res, next) ->
+router.get "/trending/google/:geo?", (req, res, next) ->
 	return next new Error "No geo specified..." unless req.params.geo
 
 	httpReqStream = request
@@ -82,5 +81,9 @@ router.get "/trending/twitter/:woeid", (req, res, next) ->
 
 	.catch (error) ->
 		next error
+
+router.use (error, req, res, next) ->
+	log.error "#{req.path} #{error.message}"
+	res.status(500).json message: error.message
 
 module.exports = router

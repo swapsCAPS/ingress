@@ -1,0 +1,50 @@
+@import '~react-select/dist/react-select.css';
+@import './colors.scss';
+
+.Select {
+  background: $skyBright !important;
+}
+
+.Select-input {
+  background: $skyBright;
+}
+
+.Select-value-label {
+  color: $star !important;
+}
+
+.Select-control {
+  background: $skyBright !important;
+  border-radius: 0;
+  border-width: 0;
+}
+
+.Select-placeholder {
+  background: $skyBright !important;
+  color: $star;
+}
+
+.Select-menu-outer {
+  background: $skyBright !important;
+  color: $star;
+  border-width: 0;
+
+}
+.Select-menu {
+  color:      $star;
+}
+
+.Select-option {
+  background: $skyBright;
+  color: $star;
+}
+
+.Select-option.is-focused {
+  background: $lightDim;
+  color: $customerBright;
+}
+
+.Select-option.is-selected {
+  background: $lightBright !important;
+  color: $customerBright;
+}

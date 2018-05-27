@@ -1,0 +1,18 @@
+@import "./colors.scss";
+
+.table-td {
+  max-width: 170px
+}
+
+.table-link {
+  display:       inline-block;
+  text-overflow: ellipsis;
+  max-width:     100%;
+  white-space:   nowrap;
+  overflow:      hidden;
+  color:         $star
+}
+
+.table-link:hover {
+  color:         $lightBright
+}
